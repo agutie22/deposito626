@@ -1,0 +1,100 @@
+:root {
+  --bg-dark: #0f0e0e;
+  /* Obsidian */
+  --bg-card: #141313;
+  --text-primary: #e0d8c3;
+  /* Parchment/Bone */
+  --text-secondary: #8c857b;
+
+  /* Oaxacan / Secret Vibe Colors */
+  --accent-gold: #c5a059;
+  /* Antique Gold */
+  --accent-clay: #9d442beb;
+  /* Oaxacan Clay */
+  --accent-agave: #1f3a3d;
+  /* Agave Green */
+  --accent-charcoal: #2a2a2a;
+
+  --font-heading: 'Oswald', sans-serif;
+  --font-fancy: 'Cinzel', serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-fancy);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-heading);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Mobile Utilities */
+.hide-on-mobile {
+  display: block;
+}
+
+.show-on-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+
+  body {
+    padding-bottom: 80px;
+    /* Space for BottomNav */
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .menu-section {
+    padding: 2rem 1rem !important;
+  }
+}
+
+.menu-section {
+  padding: 4rem 2rem;
+  background: var(--bg-dark);
+}
