@@ -28,6 +28,7 @@ const footerStyles: { [key: string]: React.CSSProperties } = {
 const Footer = () => {
     return (
         <footer style={footerStyles.container}>
+            <img src="/logo.png" alt="Deposito 626 Logo" style={{ width: '80px', height: 'auto', marginBottom: '1rem' }} />
             <p style={footerStyles.text}>Ready to order? DM us now.</p>
             <a
                 href="https://instagram.com/eldeposito626"

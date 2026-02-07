@@ -1,34 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './index.css';
-import CurtainLanding from './components/CurtainLanding';
-import Menu from './components/Menu';
+// import CurtainLanding from './components/CurtainLanding'; // Deprecated
+import SunStoneLanding from './components/SunStoneLanding';
+import OrderMenu from './components/OrderMenu';
+import CartOverlay from './components/CartOverlay';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
 
 function App() {
   const [hasEntered, setHasEntered] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Listen for cart open event from OrderMenu
+  useEffect(() => {
+    const handleOpenCart = () => setIsCartOpen(true);
+    window.addEventListener('openCart', handleOpenCart);
+    return () => window.removeEventListener('openCart', handleOpenCart);
+  }, []);
 
   return (
     <div className="app-container">
-      {!hasEntered && <CurtainLanding onEnter={() => setHasEntered(true)} />}
+      {!hasEntered && <SunStoneLanding onEnter={() => setHasEntered(true)} />}
 
       <div style={{
         opacity: hasEntered ? 1 : 0,
-        transition: 'opacity 1s ease 0.5s',
-        minHeight: '100vh'
+        transition: 'opacity 1.5s ease', // Slower fade in for dramatic effect
+        minHeight: '100vh',
+        filter: hasEntered ? 'none' : 'blur(10px)', // Blur effect transitioning out
+        transform: hasEntered ? 'scale(1)' : 'scale(0.95)',
       }}>
-        {/* Simple Header for inside view */}
-        <header style={{ padding: '3rem 1rem', textAlign: 'center' }}>
-          <h1 style={{ color: 'var(--accent-gold)', fontSize: '2rem' }}>DEPOSITO 626</h1>
-          <p style={{ color: 'var(--accent-clay)', letterSpacing: '2px', fontFamily: 'var(--font-heading)' }}>PRIVATE SERVICE MENU</p>
-        </header>
-
-        <Menu />
+        {/* Main ordering interface replaces old menu */}
+        <OrderMenu />
         <Footer />
         <div className="show-on-mobile">
           <BottomNav />
         </div>
       </div>
+
+      {/* Cart Overlay */}
+      <CartOverlay isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }
