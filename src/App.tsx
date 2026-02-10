@@ -3,11 +3,13 @@ import './index.css';
 // import CurtainLanding from './components/CurtainLanding'; // Deprecated
 import SunStoneLanding from './components/SunStoneLanding';
 import OrderMenu from './components/OrderMenu';
+import CustomizePlan from './components/CustomizePlan';
 import CartOverlay from './components/CartOverlay';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
 
 function App() {
+  // Force re-render reference
   const [hasEntered, setHasEntered] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -30,6 +32,7 @@ function App() {
         transform: hasEntered ? 'scale(1)' : 'scale(0.95)',
       }}>
         {/* Main ordering interface replaces old menu */}
+        <CustomizePlan />
         <OrderMenu />
         <Footer />
         <div className="show-on-mobile">
