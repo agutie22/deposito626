@@ -1,9 +1,0 @@
-{
-    "name": "deposito626",
-    "main": "src/worker.js",
-    "compatibility_date": "2024-11-12",
-    "assets": {
-        "directory": "./dist",
-        "binding": "ASSETS"
-    }
-}
