@@ -44,7 +44,7 @@ const OrderMenu: React.FC = () => {
     };
 
     return (
-        <div className="order-menu">
+        <div id="menu" className="order-menu">
             {/* Sticky Header with Cart */}
             <header className="order-menu-header">
                 <div className="header-content">

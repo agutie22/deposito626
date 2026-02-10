@@ -3,7 +3,7 @@ import './index.css';
 // import CurtainLanding from './components/CurtainLanding'; // Deprecated
 import SunStoneLanding from './components/SunStoneLanding';
 import OrderMenu from './components/OrderMenu';
-import CustomizePlan from './components/CustomizePlan';
+
 import CartOverlay from './components/CartOverlay';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
@@ -32,16 +32,20 @@ function App() {
         transform: hasEntered ? 'scale(1)' : 'scale(0.95)',
       }}>
         {/* Main ordering interface replaces old menu */}
-        <CustomizePlan />
         <OrderMenu />
         <Footer />
-        <div className="show-on-mobile">
-          <BottomNav />
-        </div>
+
       </div>
 
       {/* Cart Overlay */}
       <CartOverlay isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Bottom Nav - Outside transform container for fixed positioning */}
+      {hasEntered && !isCartOpen && (
+        <div className="show-on-mobile">
+          <BottomNav />
+        </div>
+      )}
     </div>
   );
 }
