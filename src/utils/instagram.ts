@@ -18,7 +18,11 @@ export function generateOrderId(): string {
 
 export function formatOrderMessage(order: OrderDetails): string {
     const itemLines = order.items
-        .map((item) => `• ${item.quantity}x ${item.name} ($${(item.price * item.quantity).toFixed(2)})`)
+        .map((item) => {
+            const variants = [item.size, item.flavor].filter(Boolean).join(', ');
+            const variantText = variants ? ` [${variants}]` : '';
+            return `• ${item.quantity}x ${item.name}${variantText} - $${(item.price * item.quantity).toFixed(2)}`;
+        })
         .join('\n');
 
     const message = `📦 New Order #${order.orderId}

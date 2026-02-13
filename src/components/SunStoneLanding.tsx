@@ -63,14 +63,16 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 interface SunStoneLandingProps {
     onEnter: () => void;
+    isOpen: boolean;
+    closingMessage?: string;
 }
 
-const SunStoneLanding: React.FC<SunStoneLandingProps> = ({ onEnter }) => {
+const SunStoneLanding: React.FC<SunStoneLandingProps> = ({ onEnter, isOpen, closingMessage }) => {
     const [isUnlocking, setIsUnlocking] = useState(false);
     const [isUnlocked, setIsUnlocked] = useState(false);
 
     const handleUnlock = () => {
-        if (isUnlocking || isUnlocked) return;
+        if (isUnlocking || isUnlocked || !isOpen) return;
 
         setIsUnlocking(true);
 
@@ -113,6 +115,8 @@ const SunStoneLanding: React.FC<SunStoneLandingProps> = ({ onEnter }) => {
                     transform: isUnlocking
                         ? 'scale(1.1)' // Pulse/Zoom slightly on interact
                         : 'scale(1)',
+                    cursor: isOpen ? 'pointer' : 'not-allowed',
+                    opacity: isOpen ? 1 : 0.5,
                 }}
                 onClick={handleUnlock}
             >
@@ -133,7 +137,11 @@ const SunStoneLanding: React.FC<SunStoneLandingProps> = ({ onEnter }) => {
                     opacity: isUnlocking ? 0 : 0.7,
                 }}
             >
-                {isUnlocking ? 'Accessing...' : 'Tap Stone to Unlock'}
+
+                {isUnlocking
+                    ? 'Accessing...'
+                    : (!isOpen ? (closingMessage || 'Store Closed') : 'Tap Stone to Unlock')
+                }
             </p>
 
             <style>{`

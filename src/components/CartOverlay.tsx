@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../store/useCartStore';
 import { generateOrderId, formatOrderMessage, getInstagramDMUrl } from '../utils/instagram';
+import { supabase } from '../supabaseClient';
 import { X, Plus, Minus, Trash2, Send, Copy, CheckCircle, Instagram } from 'lucide-react';
 import './CartOverlay.css';
 
@@ -10,17 +12,21 @@ interface CartOverlayProps {
 }
 
 const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
-    const { items, updateQuantity, removeItem, clearCart, getSubtotal, user, setPhone, setVerified } = useCartStore();
-    const [step, setStep] = useState<'cart' | 'phone' | 'otp' | 'confirm'>('cart');
-    const [phoneInput, setPhoneInput] = useState(user.phone);
-    const [otpInput, setOtpInput] = useState('');
+    const { items, updateQuantity, removeItem, clearCart, getSubtotal, user, setPhone } = useCartStore();
+    const [step, setStep] = useState<'cart' | 'confirm'>('cart');
+    const [phoneInput, setPhoneInput] = useState(user.phone || '');
     const [address, setAddress] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
     const [countdown, setCountdown] = useState(0);
     const [orderMessage, setOrderMessage] = useState('');
 
     const subtotal = getSubtotal();
     const isAddressValid = address.trim().length >= 5;
+
+    useEffect(() => {
+        if (user.phone) {
+            setPhoneInput(user.phone);
+        }
+    }, [user.phone]);
 
     // Countdown timer for confirm step
     useEffect(() => {
@@ -31,36 +37,14 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
     }, [step, countdown]);
 
     const handleCheckout = () => {
-        if (!user.isVerified) {
-            setStep('phone');
-        } else {
-            prepareOrder();
+        if (phoneInput.length < 10) {
+            alert("Please enter a valid phone number.");
+            return;
         }
-    };
 
-    const handleSendPhone = async () => {
-        setIsLoading(true);
-        console.log('📱 Mock OTP sent to:', phoneInput);
-        console.log('🔐 Mock OTP Code: 123456');
+        // Save phone to store
         setPhone(phoneInput);
-        setTimeout(() => {
-            setIsLoading(false);
-            setStep('otp');
-        }, 1000);
-    };
-
-    const handleVerifyOtp = async () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            if (otpInput === '123456') {
-                setVerified(true);
-                setIsLoading(false);
-                prepareOrder();
-            } else {
-                alert('Invalid code. Try 123456 for demo.');
-                setIsLoading(false);
-            }
-        }, 500);
+        prepareOrder();
     };
 
     const prepareOrder = async () => {
@@ -68,7 +52,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         const order = {
             items,
             subtotal,
-            phone: user.phone || phoneInput,
+            phone: phoneInput,
             address,
             orderId,
         };
@@ -88,7 +72,27 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         setStep('confirm');
     };
 
-    const handleOpenInstagram = () => {
+    const handleOpenInstagram = async () => {
+        // Create order in Supabase
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .insert({
+                    customer_name: phoneInput, // Using phone as name
+                    phone: phoneInput,
+                    address: address,
+                    items: items,
+                    total_amount: subtotal,
+                    status: 'pending'
+                });
+
+            if (error) {
+                console.error("Failed to create order in DB", error);
+            }
+        } catch (err) {
+            console.error("Error creating order", err);
+        }
+
         window.open(getInstagramDMUrl(), '_blank');
         clearCart();
         setStep('cart');
@@ -111,8 +115,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                 <header className="cart-header">
                     <h2>
                         {step === 'cart' && 'Your Order'}
-                        {step === 'phone' && 'Verify Phone'}
-                        {step === 'otp' && 'Enter Code'}
                         {step === 'confirm' && 'Ready to Send!'}
                     </h2>
                     <button className="close-btn" onClick={onClose}>
@@ -133,17 +135,22 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                                         {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="cart-item-img" />}
                                         <div className="cart-item-info">
                                             <span className="cart-item-name">{item.name}</span>
+                                            {(item.size || item.flavor) && (
+                                                <span className="cart-item-variant" style={{ fontSize: '0.8rem', color: '#aaa' }}>
+                                                    {[item.size, item.flavor].filter(Boolean).join(' • ')}
+                                                </span>
+                                            )}
                                             <span className="cart-item-price">${(item.price * item.quantity).toFixed(2)}</span>
                                         </div>
                                         <div className="cart-item-controls">
-                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.flavor)}>
                                                 <Minus size={16} />
                                             </button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.flavor)}>
                                                 <Plus size={16} />
                                             </button>
-                                            <button className="remove-btn" onClick={() => removeItem(item.id)}>
+                                            <button className="remove-btn" onClick={() => removeItem(item.id, item.size, item.flavor)}>
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
@@ -154,6 +161,16 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
 
                         {items.length > 0 && (
                             <div className="cart-footer">
+                                <div className="cart-address">
+                                    <label>Your Phone Number <span className="required">*</span></label>
+                                    <input
+                                        type="tel"
+                                        placeholder="(555) 123-4567"
+                                        value={phoneInput}
+                                        onChange={(e) => setPhoneInput(e.target.value)}
+                                        className={phoneInput.length > 0 && phoneInput.length < 10 ? 'input-error' : ''}
+                                    />
+                                </div>
                                 <div className="cart-address">
                                     <label>Delivery Address <span className="required">*</span></label>
                                     <input
@@ -174,7 +191,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                                 <button
                                     className="checkout-btn"
                                     onClick={handleCheckout}
-                                    disabled={!isAddressValid}
+                                    disabled={!isAddressValid || phoneInput.length < 10}
                                 >
                                     <Send size={18} />
                                     Order via Instagram DM
@@ -182,41 +199,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                             </div>
                         )}
                     </>
-                )}
-
-                {step === 'phone' && (
-                    <div className="verification-step">
-                        <p>Enter your phone number to verify your order</p>
-                        <input
-                            type="tel"
-                            placeholder="(555) 123-4567"
-                            value={phoneInput}
-                            onChange={(e) => setPhoneInput(e.target.value)}
-                            className="phone-input"
-                        />
-                        <button className="verify-btn" onClick={handleSendPhone} disabled={isLoading || phoneInput.length < 10}>
-                            {isLoading ? 'Sending...' : 'Send Verification Code'}
-                        </button>
-                        <button className="back-btn" onClick={() => setStep('cart')}>Back to Cart</button>
-                    </div>
-                )}
-
-                {step === 'otp' && (
-                    <div className="verification-step">
-                        <p>Enter the 6-digit code sent to {phoneInput}</p>
-                        <input
-                            type="text"
-                            placeholder="123456"
-                            value={otpInput}
-                            onChange={(e) => setOtpInput(e.target.value)}
-                            maxLength={6}
-                            className="otp-input"
-                        />
-                        <button className="verify-btn" onClick={handleVerifyOtp} disabled={isLoading || otpInput.length < 6}>
-                            {isLoading ? 'Verifying...' : 'Verify & Order'}
-                        </button>
-                        <button className="back-btn" onClick={() => setStep('phone')}>Change Phone</button>
-                    </div>
                 )}
 
                 {step === 'confirm' && (
@@ -255,4 +237,3 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
 };
 
 export default CartOverlay;
-
