@@ -4,7 +4,7 @@ import { useAdmin } from '../context/AdminContext';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import type { Product } from '../types';
 import { ProductCard } from './ProductCard';
-import CartOverlay from './CartOverlay'; // Added import
+
 import './OrderMenu.css';
 
 const OrderMenu: React.FC = () => {
