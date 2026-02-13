@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- 1. Create an Admin User in auth.users
--- Password is 'password123'
+-- Password is 'Yz6vxc@3'
 INSERT INTO auth.users (
     instance_id,
     id,
