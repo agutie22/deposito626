@@ -72,28 +72,34 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         setStep('confirm');
     };
 
-    const handleOpenInstagram = async () => {
-        // Create order in Supabase
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .insert({
-                    customer_name: phoneInput, // Using phone as name
-                    phone: phoneInput,
-                    address: address,
-                    items: items,
-                    total_amount: subtotal,
-                    status: 'pending'
-                });
+    const handleOpenInstagram = () => {
+        // 1. Open Instagram immediately (synchronously) to avoid popup blockers
+        const instagramUrl = getInstagramDMUrl();
+        window.open(instagramUrl, '_blank');
 
-            if (error) {
-                console.error("Failed to create order in DB", error);
+        // 2. Fire and forget the database insertion
+        (async () => {
+            try {
+                const { error } = await supabase
+                    .from('orders')
+                    .insert({
+                        customer_name: phoneInput,
+                        phone: phoneInput,
+                        address: address,
+                        items: items,
+                        total_amount: subtotal,
+                        status: 'pending'
+                    });
+
+                if (error) {
+                    console.error("Failed to create order in DB", error);
+                }
+            } catch (err) {
+                console.error("Error creating order", err);
             }
-        } catch (err) {
-            console.error("Error creating order", err);
-        }
+        })();
 
-        window.open(getInstagramDMUrl(), '_blank');
+        // 3. Clean up and close
         clearCart();
         setStep('cart');
         onClose();

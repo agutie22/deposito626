@@ -47,20 +47,20 @@ export async function openInstagramDM(order: OrderDetails): Promise<boolean> {
     const message = formatOrderMessage(order);
 
     try {
-        // Copy message to clipboard
-        await navigator.clipboard.writeText(message);
-
-        // Open Instagram DM (message is in clipboard for user to paste)
-        window.open(getInstagramDMUrl(), '_blank');
-
-        return true; // Clipboard copy succeeded
+        // Copy message to clipboard if available
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(message);
+            window.open(getInstagramDMUrl(), '_blank');
+            return true;
+        } else {
+            // Fallback for non-secure contexts or unsupported browsers
+            window.open(getInstagramDMUrl(), '_blank');
+            return false;
+        }
     } catch (err) {
         console.error('Failed to copy to clipboard:', err);
-
-        // Fallback: just open Instagram without clipboard
         window.open(getInstagramDMUrl(), '_blank');
-
-        return false; // Clipboard copy failed
+        return false;
     }
 }
 
