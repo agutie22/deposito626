@@ -7,6 +7,7 @@ export interface Product {
     stockStatus: 'in_stock' | 'limited' | 'out_of_stock';
     category: string;
     availableFlavors?: string[];
+    flavorStock?: Record<string, number>;
     stockQuantity?: number;
 }
 

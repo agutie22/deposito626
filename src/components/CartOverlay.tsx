@@ -77,25 +77,31 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         const instagramUrl = getInstagramDMUrl();
         window.open(instagramUrl, '_blank');
 
-        // 2. Fire and forget the database insertion
+        // 2. Fire and forget the database RPC
         (async () => {
             try {
-                const { error } = await supabase
-                    .from('orders')
-                    .insert({
+                const { error } = await supabase.rpc('create_order', {
+                    model: {
                         customer_name: phoneInput,
                         phone: phoneInput,
                         address: address,
-                        items: items,
-                        total_amount: subtotal,
-                        status: 'pending'
-                    });
+                        items: items.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price,
+                            flavor: item.flavor,
+                            size: item.size
+                        })),
+                        total_amount: subtotal
+                    }
+                });
 
                 if (error) {
-                    console.error("Failed to create order in DB", error);
+                    console.error("Failed to create order via RPC", error);
                 }
             } catch (err) {
-                console.error("Error creating order", err);
+                console.error("Error creating order via RPC", err);
             }
         })();
 
