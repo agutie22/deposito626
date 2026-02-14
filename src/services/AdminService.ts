@@ -21,7 +21,7 @@ export class SupabaseAdminService implements IAdminService {
         // or just use a single admin account.
         // For now, let's assume we are signing in as 'admin@deposito626.com' with the provided password.
         const { error } = await supabase.auth.signInWithPassword({
-            email: 'alexguti@usc.edu',
+            email: 'admin@deposito626.com',
             password: password,
         });
 
@@ -63,6 +63,7 @@ export class SupabaseAdminService implements IAdminService {
             stockStatus: p.stock_status,
             category: p.category,
             availableFlavors: p.available_flavors,
+            flavorStock: p.flavor_stock,
             stockQuantity: p.stock_quantity
         }));
     }
@@ -77,6 +78,7 @@ export class SupabaseAdminService implements IAdminService {
             stock_status: product.stockStatus,
             category: product.category,
             available_flavors: product.availableFlavors,
+            flavor_stock: product.flavorStock || {},
             stock_quantity: product.stockQuantity || 0
         };
 
@@ -105,6 +107,7 @@ export class SupabaseAdminService implements IAdminService {
             stockStatus: data.stock_status,
             category: data.category,
             availableFlavors: data.available_flavors,
+            flavorStock: data.flavor_stock,
             stockQuantity: data.stock_quantity
         };
     }

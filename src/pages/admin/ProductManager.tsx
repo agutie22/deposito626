@@ -26,7 +26,8 @@ const ProductManager = () => {
         imageUrl: '',
         stockStatus: 'in_stock',
         stockQuantity: 0,
-        availableFlavors: []
+        availableFlavors: [],
+        flavorStock: {}
     });
 
     // Helper state for text inputs (comma separated)
@@ -82,6 +83,44 @@ const ProductManager = () => {
         setIsModalOpen(true);
     };
 
+    // Keep flavorStock in sync with flavorsInput and calculate total stock
+    useEffect(() => {
+        const flavors = flavorsInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        setFormData(prev => {
+            const newStock = { ...(prev.flavorStock || {}) };
+
+            // Sync entries
+            flavors.forEach(f => {
+                if (newStock[f] === undefined) newStock[f] = 0;
+            });
+            Object.keys(newStock).forEach(k => {
+                if (!flavors.includes(k)) delete newStock[k];
+            });
+
+            // Calculate total
+            const total = flavors.length > 0
+                ? Object.values(newStock).reduce((sum, qty) => sum + qty, 0)
+                : prev.stockQuantity || 0;
+
+            return {
+                ...prev,
+                flavorStock: newStock,
+                availableFlavors: flavors,
+                stockQuantity: total
+            };
+        });
+    }, [flavorsInput]);
+
+    // Recalculate total if individual flavor stocks change
+    useEffect(() => {
+        if (formData.availableFlavors && formData.availableFlavors.length > 0) {
+            const total = Object.values(formData.flavorStock || {}).reduce((sum, qty) => sum + qty, 0);
+            if (total !== formData.stockQuantity) {
+                setFormData(prev => ({ ...prev, stockQuantity: total }));
+            }
+        }
+    }, [formData.flavorStock, formData.availableFlavors, formData.stockQuantity]);
+
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
@@ -132,7 +171,8 @@ const ProductManager = () => {
                 description: formData.description?.trim(),
                 imageUrl: finalImageUrl,
                 id: editingProduct ? editingProduct.id : undefined,
-                availableFlavors: flavorsInput.split(',').map(s => s.trim()).filter(s => s.length > 0),
+                availableFlavors: formData.availableFlavors,
+                flavorStock: formData.flavorStock,
                 stockQuantity: formData.stockQuantity || 0
             } as Product;
 
@@ -339,8 +379,12 @@ const ProductManager = () => {
                                             min="0"
                                             value={formData.stockQuantity}
                                             onChange={e => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) || 0 })}
-                                            className="w-full bg-black/30 border border-white/10 rounded-xl p-4 focus:border-[var(--accent-gold)] outline-none transition-colors font-mono"
+                                            disabled={formData.availableFlavors && formData.availableFlavors.length > 0}
+                                            className={`w-full bg-black/30 border border-white/10 rounded-xl p-4 focus:border-[var(--accent-gold)] outline-none transition-colors font-mono ${formData.availableFlavors && formData.availableFlavors.length > 0 ? 'opacity-50 cursor-not-allowed bg-black/50' : ''}`}
                                         />
+                                        {formData.availableFlavors && formData.availableFlavors.length > 0 && (
+                                            <p className="text-[10px] text-[var(--accent-gold)] mt-1 font-bold italic">Auto-calculated from flavors</p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -373,6 +417,35 @@ const ProductManager = () => {
                                         placeholder="e.g. Blue, Red, Lemon"
                                     />
                                 </div>
+
+                                {formData.availableFlavors && formData.availableFlavors.length > 0 && (
+                                    <div className="p-4 bg-white/5 rounded-xl space-y-3">
+                                        <p className="text-[10px] uppercase font-bold text-[var(--text-secondary)] mb-1">Stock per Flavor</p>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {formData.availableFlavors.map(flavor => (
+                                                <div key={flavor} className="flex flex-col gap-1">
+                                                    <label className="text-[10px] text-[var(--text-secondary)] truncate">{flavor}</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        value={formData.flavorStock?.[flavor] || 0}
+                                                        onChange={e => {
+                                                            const val = parseInt(e.target.value) || 0;
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                flavorStock: {
+                                                                    ...prev.flavorStock,
+                                                                    [flavor]: val
+                                                                }
+                                                            }));
+                                                        }}
+                                                        className="bg-black/40 border border-white/10 rounded-lg p-2 text-sm focus:border-[var(--accent-gold)] outline-none transition-colors font-mono"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-xs uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-bold">Description & Flavor</label>

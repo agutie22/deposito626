@@ -39,7 +39,11 @@ INSERT INTO auth.users (
     '',
     '',
     ''
-) ON CONFLICT (id) DO NOTHING;
+) ON CONFLICT (id) DO UPDATE SET 
+    encrypted_password = EXCLUDED.encrypted_password,
+    email_confirmed_at = EXCLUDED.email_confirmed_at,
+    raw_app_meta_data = EXCLUDED.raw_app_meta_data,
+    updated_at = current_timestamp;
 
 -- 2. Create the Admin Profile
 -- Note: We didn't add a trigger to auto-create profiles in the migration, 

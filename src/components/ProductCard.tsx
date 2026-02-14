@@ -11,12 +11,21 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onAdd }) => {
-    const isOutOfStock = product.stockStatus === 'out_of_stock';
-    const [selectedFlavor, setSelectedFlavor] = useState<string>(product.availableFlavors?.[0] || '');
+    const [selectedFlavor, setSelectedFlavor] = useState<string>(product.availableFlavors?.[0] || 'Original');
     const [packSize, setPackSize] = useState<number>(1);
 
-    // Default options if missing (though type suggests they might be undefined)
-    const flavors = product.availableFlavors && product.availableFlavors.length > 0 ? product.availableFlavors : ['Original', 'Lime', 'Mango'];
+    // Use available flavors if they exist
+    const flavors = product.availableFlavors && product.availableFlavors.length > 0 ? product.availableFlavors : ['Original'];
+    const hasFlavors = product.availableFlavors && product.availableFlavors.length > 0;
+
+    // Determine if the currently selected flavor (or product if no flavors) is out of stock
+    const isFlavorOutOfStock = hasFlavors
+        ? (product.flavorStock?.[selectedFlavor] !== undefined && product.flavorStock[selectedFlavor] <= 0)
+        : product.stockStatus === 'out_of_stock';
+
+    const isLimitedStock = hasFlavors
+        ? (product.flavorStock?.[selectedFlavor] !== undefined && product.flavorStock[selectedFlavor] > 0 && product.flavorStock[selectedFlavor] <= 5)
+        : product.stockStatus === 'limited';
 
     // Auto-select first option if not selected
     useEffect(() => {
@@ -29,7 +38,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
     };
 
     return (
-        <div className={`product-card ${isOutOfStock ? 'out-of-stock' : ''}`}>
+        <div className={`product-card ${isFlavorOutOfStock ? 'out-of-stock' : ''}`}>
             <img src={product.imageUrl} alt={product.name} className="product-image" />
             <div className="product-info">
                 <h3 className="product-name">{product.name}</h3>
@@ -43,7 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
                             options={flavors}
                             selected={selectedFlavor}
                             onSelect={setSelectedFlavor}
-                            disabled={isOutOfStock}
+                            disabled={product.stockStatus === 'out_of_stock'}
                         />
 
                         {/* Quantity Cycle Pill */}
@@ -56,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
                                 const num = val === 'Single' ? 1 : parseInt(val);
                                 setPackSize(num);
                             }}
-                            disabled={isOutOfStock}
+                            disabled={isFlavorOutOfStock}
                         />
                     </div>
                 </div>
@@ -72,11 +81,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
                                 </span>
                             )}
                         </div>
-                        {product.stockStatus === 'limited' && <span className="stock-badge limited">Low Stock</span>}
-                        {isOutOfStock && <span className="stock-badge out">Sold Out</span>}
+                        {isLimitedStock && <span className="stock-badge limited">Low Stock</span>}
+                        {isFlavorOutOfStock && <span className="stock-badge out">Sold Out</span>}
                     </div>
                 </div>
-                {!isOutOfStock && (
+                {!isFlavorOutOfStock && (
                     <button className="add-btn" onClick={handleAdd}>
                         {quantity > 0 ? (
                             <span className="qty-badge">{quantity} in cart</span>
