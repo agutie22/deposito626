@@ -21,7 +21,7 @@ export class SupabaseAdminService implements IAdminService {
         // or just use a single admin account.
         // For now, let's assume we are signing in as 'admin@deposito626.com' with the provided password.
         const { error } = await supabase.auth.signInWithPassword({
-            email: 'admin@deposito626.com',
+            email: 'alexguti@usc.edu',
             password: password,
         });
 
