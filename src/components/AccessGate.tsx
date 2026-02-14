@@ -23,8 +23,11 @@ export const AccessGate: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // Clean the phone input - remove non-digits
-            const cleanPhone = inputPhone.replace(/\D/g, '');
+            // Clean the phone input - remove non-digits and take last 10
+            let cleanPhone = inputPhone.replace(/\D/g, '');
+            if (cleanPhone.length > 10) {
+                cleanPhone = cleanPhone.substring(cleanPhone.length - 10);
+            }
 
             if (cleanPhone.length < 10) {
                 throw new Error('Please enter a valid 10-digit phone number');
