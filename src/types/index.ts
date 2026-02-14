@@ -6,7 +6,6 @@ export interface Product {
     imageUrl: string;
     stockStatus: 'in_stock' | 'limited' | 'out_of_stock';
     category: string;
-    availableSizes?: string[];
     availableFlavors?: string[];
     stockQuantity?: number;
 }

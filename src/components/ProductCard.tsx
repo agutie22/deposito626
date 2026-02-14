@@ -12,23 +12,20 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onAdd }) => {
     const isOutOfStock = product.stockStatus === 'out_of_stock';
-    const [selectedSize, setSelectedSize] = useState<string>(product.availableSizes?.[0] || '');
     const [selectedFlavor, setSelectedFlavor] = useState<string>(product.availableFlavors?.[0] || '');
     const [packSize, setPackSize] = useState<number>(1);
 
     // Default options if missing (though type suggests they might be undefined)
-    const sizes = product.availableSizes && product.availableSizes.length > 0 ? product.availableSizes : ['Standard', 'Large'];
     const flavors = product.availableFlavors && product.availableFlavors.length > 0 ? product.availableFlavors : ['Original', 'Lime', 'Mango'];
 
     // Auto-select first option if not selected
     useEffect(() => {
-        if (!selectedSize && sizes.length > 0) setSelectedSize(sizes[0]);
         if (!selectedFlavor && flavors.length > 0) setSelectedFlavor(flavors[0]);
-    }, [sizes, flavors, selectedSize, selectedFlavor]);
+    }, [flavors, selectedFlavor]);
 
     const handleAdd = () => {
         if (navigator.vibrate) navigator.vibrate(15); // Stronger haptic for Add
-        onAdd(packSize, selectedSize, selectedFlavor);
+        onAdd(packSize, undefined, selectedFlavor);
     };
 
     return (
@@ -40,15 +37,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
 
                 <div className="product-options">
                     <div className="options-row">
-                        {/* Size Cycle Pill */}
-                        <CycleSelector
-                            label="Size"
-                            options={sizes}
-                            selected={selectedSize}
-                            onSelect={setSelectedSize}
-                            disabled={isOutOfStock}
-                        />
-
                         {/* Flavor Cycle Pill */}
                         <CycleSelector
                             label="Flavor"
@@ -78,9 +66,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
                         <div className="price-container">
                             <span className="product-price">${(product.price * packSize).toFixed(2)}</span>
                             {/* Selected Options Summary */}
-                            {(selectedSize || selectedFlavor) && (
+                            {selectedFlavor && (
                                 <span className="footer-options">
-                                    {[selectedSize, selectedFlavor].filter(Boolean).join(' • ')}
+                                    {selectedFlavor}
                                 </span>
                             )}
                         </div>
