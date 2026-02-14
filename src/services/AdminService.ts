@@ -62,7 +62,6 @@ export class SupabaseAdminService implements IAdminService {
             imageUrl: p.image_url,
             stockStatus: p.stock_status,
             category: p.category,
-            availableSizes: p.available_sizes,
             availableFlavors: p.available_flavors,
             stockQuantity: p.stock_quantity
         }));
@@ -77,7 +76,6 @@ export class SupabaseAdminService implements IAdminService {
             image_url: product.imageUrl,
             stock_status: product.stockStatus,
             category: product.category,
-            available_sizes: product.availableSizes,
             available_flavors: product.availableFlavors,
             stock_quantity: product.stockQuantity || 0
         };
@@ -106,7 +104,6 @@ export class SupabaseAdminService implements IAdminService {
             imageUrl: data.image_url,
             stockStatus: data.stock_status,
             category: data.category,
-            availableSizes: data.available_sizes,
             availableFlavors: data.available_flavors,
             stockQuantity: data.stock_quantity
         };

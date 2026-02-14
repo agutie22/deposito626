@@ -214,8 +214,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                         </div>
                         <h3>Order Copied!</h3>
                         <p className="confirm-instructions">
-                            Your order is ready to send. When Instagram opens,
-                            <strong> tap and hold</strong> in the message box, then tap <strong>Paste</strong>.
+                            PASTE ORDER IN INSTAGRAM MESSAGE
                         </p>
 
                         <div className="order-preview">

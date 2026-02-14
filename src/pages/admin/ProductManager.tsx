@@ -26,12 +26,10 @@ const ProductManager = () => {
         imageUrl: '',
         stockStatus: 'in_stock',
         stockQuantity: 0,
-        availableSizes: [],
         availableFlavors: []
     });
 
     // Helper state for text inputs (comma separated)
-    const [sizesInput, setSizesInput] = useState('');
     const [flavorsInput, setFlavorsInput] = useState('');
 
     const fetchData = async () => {
@@ -66,7 +64,6 @@ const ProductManager = () => {
             setEditingProduct(product);
             setFormData({ ...product });
             setPreviewUrl(product.imageUrl);
-            setSizesInput(product.availableSizes ? product.availableSizes.join(', ') : '');
             setFlavorsInput(product.availableFlavors ? product.availableFlavors.join(', ') : '');
         } else {
             setEditingProduct(null);
@@ -78,10 +75,8 @@ const ProductManager = () => {
                 imageUrl: '',
                 stockStatus: 'in_stock',
                 stockQuantity: 0,
-                availableSizes: [],
                 availableFlavors: []
             });
-            setSizesInput('');
             setFlavorsInput('');
         }
         setIsModalOpen(true);
@@ -137,7 +132,6 @@ const ProductManager = () => {
                 description: formData.description?.trim(),
                 imageUrl: finalImageUrl,
                 id: editingProduct ? editingProduct.id : undefined,
-                availableSizes: sizesInput.split(',').map(s => s.trim()).filter(s => s.length > 0),
                 availableFlavors: flavorsInput.split(',').map(s => s.trim()).filter(s => s.length > 0),
                 stockQuantity: formData.stockQuantity || 0
             } as Product;
@@ -368,16 +362,6 @@ const ProductManager = () => {
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-xs uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-bold">Available Sizes (Comma Separated)</label>
-                                    <input
-                                        type="text"
-                                        value={sizesInput}
-                                        onChange={e => setSizesInput(e.target.value)}
-                                        className="w-full bg-black/30 border border-white/10 rounded-xl p-4 focus:border-[var(--accent-gold)] outline-none transition-colors"
-                                        placeholder="e.g. 12oz, 24oz, 6-Pack"
-                                    />
-                                </div>
 
                                 <div>
                                     <label className="block text-xs uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-bold">Available Flavors (Comma Separated)</label>
