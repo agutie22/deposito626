@@ -37,13 +37,20 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
     }, [step, countdown]);
 
     const handleCheckout = () => {
-        if (phoneInput.length < 10) {
-            alert("Please enter a valid phone number.");
+        // Normalize phone: remove non-digits and take last 10
+        let cleanPhone = phoneInput.replace(/\D/g, '');
+        if (cleanPhone.length > 10) {
+            cleanPhone = cleanPhone.substring(cleanPhone.length - 10);
+        }
+
+        if (cleanPhone.length < 10) {
+            alert("Please enter a valid 10-digit phone number.");
             return;
         }
 
-        // Save phone to store
-        setPhone(phoneInput);
+        // Save normalized phone to store
+        setPhone(cleanPhone);
+        setPhoneInput(cleanPhone); // Update local state too to show normalized version
         prepareOrder();
     };
 
