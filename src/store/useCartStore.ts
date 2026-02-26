@@ -9,6 +9,7 @@ export interface CartItem {
     imageUrl?: string;
     size?: string;
     flavor?: string;
+    maxStock?: number;
 }
 
 interface UserState {
@@ -51,15 +52,24 @@ export const useCartStore = create<CartState>()(
                         i.flavor === item.flavor
                     );
                     if (existing) {
+                        let newQuantity = existing.quantity + quantity;
+                        if (existing.maxStock !== undefined && newQuantity > existing.maxStock) {
+                            newQuantity = existing.maxStock;
+                        }
                         return {
                             items: state.items.map((i) =>
                                 (i.id === item.id && i.size === item.size && i.flavor === item.flavor)
-                                    ? { ...i, quantity: i.quantity + quantity }
+                                    ? { ...i, quantity: newQuantity }
                                     : i
                             ),
                         };
                     }
-                    return { items: [...state.items, { ...item, quantity }] };
+
+                    let newQuantity = quantity;
+                    if (item.maxStock !== undefined && newQuantity > item.maxStock) {
+                        newQuantity = item.maxStock;
+                    }
+                    return { items: [...state.items, { ...item, quantity: newQuantity }] };
                 });
             },
 
@@ -74,9 +84,16 @@ export const useCartStore = create<CartState>()(
                     items:
                         quantity <= 0
                             ? state.items.filter((i) => !(i.id === id && i.size === size && i.flavor === flavor))
-                            : state.items.map((i) =>
-                                (i.id === id && i.size === size && i.flavor === flavor) ? { ...i, quantity } : i
-                            ),
+                            : state.items.map((i) => {
+                                if (i.id === id && i.size === size && i.flavor === flavor) {
+                                    let newQuantity = quantity;
+                                    if (i.maxStock !== undefined && newQuantity > i.maxStock) {
+                                        newQuantity = i.maxStock;
+                                    }
+                                    return { ...i, quantity: newQuantity };
+                                }
+                                return i;
+                            }),
                 }));
             },
 

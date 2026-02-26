@@ -11,12 +11,19 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onAdd }) => {
-    const [selectedFlavor, setSelectedFlavor] = useState<string>(product.availableFlavors?.[0] || 'Original');
-    const [packSize, setPackSize] = useState<number>(1);
-
     // Use available flavors if they exist
     const flavors = product.availableFlavors && product.availableFlavors.length > 0 ? product.availableFlavors : ['Original'];
     const hasFlavors = product.availableFlavors && product.availableFlavors.length > 0;
+
+    const [selectedFlavor, setSelectedFlavor] = useState<string>(() => {
+        if (!hasFlavors) return 'Original';
+        const inStockFlavor = flavors.find(flavor => {
+            const stock = product.flavorStock?.[flavor];
+            return stock === undefined || stock > 0;
+        });
+        return inStockFlavor || flavors[0];
+    });
+    const [packSize, setPackSize] = useState<number>(1);
 
     // Determine if the currently selected flavor (or product if no flavors) is out of stock
     const isFlavorOutOfStock = hasFlavors
@@ -29,8 +36,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onA
 
     // Auto-select first option if not selected
     useEffect(() => {
-        if (!selectedFlavor && flavors.length > 0) setSelectedFlavor(flavors[0]);
-    }, [flavors, selectedFlavor]);
+        if (!selectedFlavor && flavors.length > 0) {
+            const inStockFlavor = flavors.find(flavor => {
+                const stock = product.flavorStock?.[flavor];
+                return stock === undefined || stock > 0;
+            });
+            setSelectedFlavor(inStockFlavor || flavors[0]);
+        }
+    }, [flavors, selectedFlavor, product.flavorStock]);
 
     const handleAdd = () => {
         if (navigator.vibrate) navigator.vibrate(15); // Stronger haptic for Add

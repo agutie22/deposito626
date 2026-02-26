@@ -19,6 +19,7 @@ import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
 
 import { AccessGate } from './components/AccessGate';
+import { AlertPopup } from './components/ui/AlertPopup';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -76,6 +77,7 @@ const Storefront = () => {
       </div>
       <AccessGate />
       <CartOverlay isOpen={user.isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <AlertPopup />
       {hasEntered && !user.isCartOpen && (
         <div className="show-on-mobile">
           <BottomNav />

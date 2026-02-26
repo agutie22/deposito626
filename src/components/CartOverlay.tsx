@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../store/useCartStore';
+import { useAlertStore } from '../store/useAlertStore';
 import { generateOrderId, formatOrderMessage, getInstagramDMUrl } from '../utils/instagram';
 import { supabase } from '../supabaseClient';
 import { X, Plus, Minus, Trash2, Send, Copy, CheckCircle, Instagram } from 'lucide-react';
@@ -44,7 +45,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         }
 
         if (cleanPhone.length < 10) {
-            alert("Please enter a valid 10-digit phone number.");
+            useAlertStore.getState().showAlert("Please enter a valid 10-digit phone number.", "warning");
             return;
         }
 
@@ -166,7 +167,11 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                                                 <Minus size={16} />
                                             </button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.flavor)}>
+                                            <button
+                                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.flavor)}
+                                                disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
+                                                style={{ opacity: (item.maxStock !== undefined && item.quantity >= item.maxStock) ? 0.3 : 1 }}
+                                            >
                                                 <Plus size={16} />
                                             </button>
                                             <button className="remove-btn" onClick={() => removeItem(item.id, item.size, item.flavor)}>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCartStore } from '../store/useCartStore';
+import { useAlertStore } from '../store/useAlertStore';
 import { useAdmin } from '../context/AdminContext';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import type { Product } from '../types';
@@ -49,13 +50,41 @@ const OrderMenu: React.FC = () => {
             return;
         }
 
+        // Determine max stock available
+        let maxStock: number | undefined;
+        if (flavor && product.flavorStock && product.flavorStock[flavor] !== undefined) {
+            maxStock = product.flavorStock[flavor];
+        } else if (product.stockQuantity !== undefined) {
+            maxStock = product.stockQuantity;
+        }
+
+        // If a max stock is defined, check current cart quantity + requested quantity
+        if (maxStock !== undefined) {
+            const currentInCart = items
+                .filter(i => i.id === product.id && i.size === size && i.flavor === flavor)
+                .reduce((acc, i) => acc + i.quantity, 0);
+
+            if (currentInCart + quantity > maxStock) {
+                const availableToAdd = maxStock - currentInCart;
+
+                if (availableToAdd <= 0) {
+                    useAlertStore.getState().showAlert(`Sorry, there are no more ${flavor || product.name} in stock.`, 'error');
+                    return;
+                } else {
+                    useAlertStore.getState().showAlert(`Sorry, only ${availableToAdd} more ${flavor || product.name} available. Added remaining stock.`, 'warning');
+                    quantity = availableToAdd;
+                }
+            }
+        }
+
         addItem({
             id: product.id,
             name: product.name,
             price: product.price,
             imageUrl: product.imageUrl,
             size,
-            flavor
+            flavor,
+            maxStock
         }, quantity);
     };
 

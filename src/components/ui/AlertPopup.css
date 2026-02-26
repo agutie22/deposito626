@@ -1,0 +1,104 @@
+.alert-popup-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    width: 90%;
+    max-width: 400px;
+}
+
+.alert-visible {
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.alert-popup {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.alert-popup.success {
+    border-color: rgba(76, 175, 80, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(76, 175, 80, 0.1);
+}
+
+.alert-popup.error {
+    border-color: rgba(244, 67, 54, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(244, 67, 54, 0.1);
+}
+
+.alert-popup.warning {
+    border-color: rgba(255, 152, 0, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 152, 0, 0.1);
+}
+
+/* Accent Gold Info */
+.alert-popup.info {
+    border-color: rgba(204, 171, 102, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(204, 171, 102, 0.1);
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.alert-icon {
+    flex-shrink: 0;
+}
+
+.success-icon {
+    color: #4caf50;
+}
+
+.error-icon {
+    color: #f44336;
+}
+
+.warning-icon {
+    color: #ff9800;
+}
+
+.info-icon {
+    color: var(--accent-gold);
+}
+
+.alert-message {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.alert-close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: 12px;
+    transition: all 0.2s ease;
+}
+
+.alert-close-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
