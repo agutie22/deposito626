@@ -6,7 +6,7 @@ This project is configured to be deployed on Cloudflare Pages.
 
 1.  **Log in to the Cloudflare Dashboard.**
 2.  **Go to "Workers & Pages" > "Create Application" > "Pages" > "Connect to Git".**
-3.  **Select the repository `deposito626`.**
+3.  **Select the repository `4444Studios/deposito626`.**
 4.  **Configure the build settings:**
 
     *   **Framework preset:** `Vite` (or `None`)
