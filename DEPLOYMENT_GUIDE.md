@@ -76,7 +76,41 @@ Follow this order of operations to ensure a smooth deployment with no downtime.
 
 ---
 
-## Common Gotchas
+## 4. 4444Studios org transfer (post-move checklist)
+
+Repository: `https://github.com/4444Studios/deposito626`
+
+### GitHub (done)
+- [x] Repo transferred to `4444Studios/deposito626`
+- [x] Local clone remote updated
+- [ ] **`SUPABASE_ACCESS_TOKEN` secret** — migration CI failed with `Unauthorized` on 2026-07-03; [regenerate a token](https://supabase.com/dashboard/account/tokens) and update the repo secret, then re-run **Remote Migrations**
+
+### Cloudflare Pages (manual — required)
+Git integration breaks when a repo moves orgs.
+
+1. Cloudflare dashboard → **Workers & Pages** → your `deposito626` project
+2. **Settings → Builds** → reconnect Git → select **`4444Studios/deposito626`**
+3. Confirm build command `pnpm run build`, output `dist`, and env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are still set
+4. Trigger a manual production deploy
+
+### Supabase dashboard (manual)
+Confirm **Authentication → URL configuration** includes:
+- `https://deposito626.com` (production)
+- Your Cloudflare Pages URL if used
+- `http://localhost:5173` (local dev)
+
+Site URL should use the production domain, not `agutie22.github.io`.
+
+### DNS note
+`deposito626.com` currently resolves to `198.135.184.22` (Hostinger), not GitHub/Cloudflare IPs. If production is Hostinger, update the VPS git remote:
+
+```bash
+git remote set-url origin git@github.com:4444Studios/deposito626.git
+```
+
+If production is Cloudflare Pages, ensure DNS points at Cloudflare instead.
+
+---
 - **CORS**: Usually handled automatically by Supabase, but ensure your Cloudflare URL is allowed if you see "Origin not allowed" errors.
 - **RLS**: If data isn't showing, check that your `profiles` table has the correct data and your RLS policies are enabled on all tables.
 - **Images**: If images aren't loading, check that the `image_url` in the database matches your production storage bucket path.
